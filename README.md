@@ -100,6 +100,18 @@ sh test.sh path/to/checkpoint_directory
 ```
 
 
+## :pencil:Related repos
+Our project references the codes in the following repos:
+
+* [DAFormer](https://github.com/lhoyer/DAFormer)
+
+other code :
+* https://github.com/KU-VGI/BUS
+* https://github.com/InSAI-Lab/Trans4PASS
+* https://github.com/RUCAIBox/EulerFormer
+* https://github.com/CityU-AIM-Group/SIGMA
+
+
 
 
 If you have any questions , please contact me at 478756030@qq.com
