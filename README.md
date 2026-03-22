@@ -33,7 +33,7 @@ download link:
 - [Cityscapes](https://www.cityscapes-dataset.com/)
 - [DensePASS](https://github.com/chma1024/DensePASS)
 - [SynPASS](https://drive.google.com/file/d/1u-5J13CD6MXpWB53apB-L6kZ3hK1JR77/view?usp=sharing)
-- [DensePASS](https://github.com/chma1024/DensePASS)
+- [DensePASS (WildPASS2K + DensePASS)](https://github.com/chma1024/DensePASS)
 - [ACDC](https://acdc.vision.ee.ethz.ch/)
 - [GTA](https://download.visinf.tu-darmstadt.de/data/from_games/)
 
@@ -47,24 +47,26 @@ train IDs and to generate the class index for RCS:
 #closed set PIN2PAN (Cityscapes，WildPASS2K → DensePASS).
 python tools/convert_datasets_normal/cityscapes.py  XXXXXX  --nproc  8 #for source domain
 python tools/convert_datasets_pass/target_empoty.py XXXXXXX  --nproc  8 #WildPASS2K for target domain
+
 #Open-set PIN2PAN (Cityscapes，WildPASS2K → DensePASS).
 python tools/convert_datasets_pass/cityscapes_13_train.py  XXXXXX  --nproc  8 #for source domain 
 python tools/convert_datasets_pass/DensePASS_13.py  XXXXXX  --nproc  8 #for test
-#Partial-set PIN2PAN (Cityscapes，WildPASS2K → DensePASS).
 
+#Partial-set PIN2PAN (Cityscapes，WildPASS2K → DensePASS).
 python tools/convert_datasets_pass/DensePASS_13_p.py  XXXXXX  --nproc  8  #for test
 
 #Open Partial-set PIN2PAN (Cityscapes，WildPASS2K → DensePASS).
-
 python tools/convert_datasets_pass/DensePASS_13_op.py  XXXXXX  --nproc  8  #for test
 
 #Open-set SynPASS，WildPASS2K → DensePASS
 python tools/convert_datasets_pass/SynPASS_13.py XXXXXX  --nproc  8 --split train --mapping train #for source domain
 python tools/convert_datasets_pass/DensePASS_11.py  /home/zyfone/hard-disk/zyf/datasets/DensePASS/DensePASS  --nproc  8 #for test
+
 #Open-set GTA，SynPASS → SynPASS
 python tools/convert_datasets_pass/gta_13.py XXXXXX  --nproc  8 #for source domain
 python tools/convert_datasets_pass/SynPASS_13.py XXXXXX  --nproc  8 --split val --mapping test #for test
 python tools/convert_datasets_pass/SynPASS_13.py XXXXXX  --nproc  8 --split test --mapping test #for test
+
 #Open-set SynPASS，ACDC → ACDC
 python tools/convert_datasets_pass/ACDC_13.py XXXXXX  --nproc  8 --split train
 python tools/convert_datasets_pass/ACDC_13.py XXXXXX  --nproc  8 --split val
