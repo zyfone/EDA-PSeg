@@ -104,15 +104,19 @@ other code :
 
 
 
-If you have any questions , please contact me at 478756030@qq.com
+If you have any questions, please contact me at 478756030@qq.com
 
+
+## 🤝 Publication:
+Please consider referencing this paper if you use the ```code``` or ```data``` from our work.
+Thanks a lot :)
 
 ```BibTeX
 
-@article{zheng2026seeing,
+@inproceedings{zheng2026seeing,
   title={Seeing Beyond: Extrapolative Domain Adaptive Panoramic Segmentation},
   author={Zheng, Yuanfan and Peng, Kunyu and Zheng, Xu and Yang, Kailun},
-  journal={arXiv preprint arXiv:2603.15475},
+  booktitle={2026 IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
   year={2026}
 }
 
