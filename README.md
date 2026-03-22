@@ -42,20 +42,9 @@ download link:
 train IDs and to generate the class index for RCS:
 
 ```shell
-
-#closed set PIN2PAN (Cityscapes，WildPASS2K → DensePASS).
-python tools/convert_datasets_normal/cityscapes.py  XXXXXX  --nproc  8 #for source domain
-python tools/convert_datasets_pass/target_empoty.py XXXXXXX  --nproc  8 #WildPASS2K for target domain
-
 #Open-set PIN2PAN (Cityscapes，WildPASS2K → DensePASS).
 python tools/convert_datasets_pass/cityscapes_13_train.py  XXXXXX  --nproc  8 #for source domain 
 python tools/convert_datasets_pass/DensePASS_13.py  XXXXXX  --nproc  8 #for test
-
-#Partial-set PIN2PAN (Cityscapes，WildPASS2K → DensePASS).
-python tools/convert_datasets_pass/DensePASS_13_p.py  XXXXXX  --nproc  8  #for test
-
-#Open Partial-set PIN2PAN (Cityscapes，WildPASS2K → DensePASS).
-python tools/convert_datasets_pass/DensePASS_13_op.py  XXXXXX  --nproc  8  #for test
 
 #Open-set SynPASS，WildPASS2K → DensePASS
 python tools/convert_datasets_pass/SynPASS_13.py XXXXXX  --nproc  8 --split train --mapping train #for source domain
