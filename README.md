@@ -93,6 +93,20 @@ sh test.sh path/to/checkpoint_directory
 ```
 
 
+
+## Proposed Components
+### Graph Matching Adapter (GMA)
+
+- **Path:** `EDA-PSeg-MobileSam/mmseg/models/decode_heads/daformer_head_graph.py`
+- **Function:** `node_sample()->_node_completion()->update_seed()->_forward_aff()->_forward_qu()`
+
+### Euler-Margin Attention (EMA)
+
+- **Path:** `EDA-PSeg-MobileSam/mmseg/models/decode_heads/euler_margin.py`
+- **Function:** `Euler_Attention()->EulerFormer()->NeuralSort()`
+
+
+
 ## :pencil:Related repos
 Our project references the codes in the following repos:
 
