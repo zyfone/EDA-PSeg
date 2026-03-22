@@ -46,6 +46,9 @@ train IDs and to generate the class index for RCS:
 python tools/convert_datasets_pass/cityscapes_13_train.py  XXXXXX  --nproc  8 #for source domain 
 python tools/convert_datasets_pass/DensePASS_13.py  XXXXXX  --nproc  8 #for test
 
+#WildPASS2K for target domain (empoty label) 
+python tools/convert_datasets_pass/target_empoty.py XXXXXXX  --nproc  8 
+
 #Open-set SynPASS，WildPASS2K → DensePASS
 python tools/convert_datasets_pass/SynPASS_13.py XXXXXX  --nproc  8 --split train --mapping train #for source domain
 python tools/convert_datasets_pass/DensePASS_11.py  /home/zyfone/hard-disk/zyf/datasets/DensePASS/DensePASS  --nproc  8 #for test
