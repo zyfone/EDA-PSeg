@@ -31,7 +31,6 @@
 
 download link:
 - [Cityscapes](https://www.cityscapes-dataset.com/)
-- [DensePASS](https://github.com/chma1024/DensePASS)
 - [SynPASS](https://drive.google.com/file/d/1u-5J13CD6MXpWB53apB-L6kZ3hK1JR77/view?usp=sharing)
 - [DensePASS (WildPASS2K + DensePASS)](https://github.com/chma1024/DensePASS)
 - [ACDC](https://acdc.vision.ee.ethz.ch/)
