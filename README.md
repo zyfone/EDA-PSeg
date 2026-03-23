@@ -1,24 +1,19 @@
 <div align="center">
   <h1><b>Seeing Beyond: Extrapolative Domain Adaptive Panoramic Segmentation</b></h1>
-
   <a href="https://github.com/zyfone/EDA-PSeg"><img src="https://img.shields.io/github/stars/zyfone/EDA-PSeg?color=yellow" alt="stars"></a>
   <a href="https://github.com/zyfone/EDA-PSeg/network/members"><img src="https://img.shields.io/github/forks/zyfone/EDA-PSeg?color=lightblue" alt="forks"></a>
   <a href="https://github.com/zyfone/EDA-PSeg/commits/main"><img src="https://img.shields.io/github/last-commit/zyfone/EDA-PSeg?color=green" alt="last-commit"></a>
   <img src="https://img.shields.io/badge/PRs-Welcome-blue" alt="PRs Welcome">
-
   <br><br>
-
   <p>
     <a href="https://arxiv.org/abs/"><strong>Seeing Beyond: Extrapolative Domain Adaptive Panoramic Segmentation</strong></a>
   </p>
-
   <p>
     <a href="https://github.com/zyfone/">Yuanfan Zheng<sup>1</sup></a>, 
     <a href="https://scholar.google.com/citations?user=pA9c0YsAAAAJ&hl=en">Kunyu Peng<sup>2</sup></a>, 
     <a href="https://zhengxujosh.github.io/">Xu Zheng<sup>3</sup></a>, 
     <a href="https://yangkailun.com/">Kailun Yang*<sup>1</sup></a>
   </p>
-
   <p>
     <sup>1</sup>Hunan University; 
     <sup>2</sup>IAR, Karlsruher Institut für Technologie; 
