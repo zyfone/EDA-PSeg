@@ -109,7 +109,7 @@ def main():
         split_path = osp.join(weather_path, args.split)
         if not osp.exists(split_path):
             continue
-        # 递归查找 *_gt_labelIds.png 文件
+        # find *_gt_labelIds.png 
         for root, _, files in os.walk(split_path):
             for file in files:
                 if file.endswith('_gt_labelTrainIds.png'):
@@ -120,7 +120,6 @@ def main():
         print("No label files found. Please check your dataset structure.")
         return
 
-    # 多进程处理
     worker_func = functools.partial(convert_worker, id_map=id_map)
     if args.nproc > 1:
         mmcv.track_parallel_progress(worker_func, label_paths, nproc=args.nproc)
