@@ -1,7 +1,7 @@
 
 <div align="center">
 
-<img src="resources/framework.png" width="90%">
+<img src="resource/framework.png" width="90%">
 
 <h1><b>Seeing Beyond: Extrapolative Domain Adaptive Panoramic Segmentation</b></h1>
 
