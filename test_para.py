@@ -6,16 +6,17 @@ from mmcv.cnn import get_model_complexity_info
 import types
 import warnings
 
+# Suppress unnecessary warnings for a cleaner output
 warnings.filterwarnings("ignore", category=UserWarning)
 
 def add_forward_dummy(model):
     """
-    给 MMSeg 模型添加 forward_dummy 方法，用于 FLOPs/MACs 统计
+    Adds a 'forward_dummy' method to the MMSeg model for FLOPs/MACs calculation.
     """
     def forward_dummy(self, img):
-        # backbone 提取特征
+        # Extract features using the backbone
         x = self.extract_feat(img)
-        # decode_head 可能有 forward_dummy
+        # Check if decode_head has its own forward_dummy; otherwise, return features
         if hasattr(self.decode_head, 'forward_dummy'):
             return self.decode_head.forward_dummy(x)
         else:
@@ -24,7 +25,8 @@ def add_forward_dummy(model):
 
 def patch_forward_for_flops(model):
     """
-    替换模型 forward，使 get_model_complexity_info 只传 img，不再报 img_metas 缺失
+    Patches the model's forward method so get_model_complexity_info only 
+    passes 'img', avoiding 'img_metas' missing errors.
     """
     def forward_only_img(self, img, *args, **kwargs):
         return self.forward_dummy(img)
@@ -32,29 +34,30 @@ def patch_forward_for_flops(model):
 
 def test_model_stats(config_file, input_shape=(3, 512, 512), device='cuda'):
     """
-    统计 MMSeg 模型参数量、FLOPs、MACs、推理时间（每张图片）
-    兼容 mmcv 1.3.7
+    Calculates model parameters, FLOPs, MACs, and inference time per image.
+    Compatible with mmcv 1.3.7.
     """
-    # 1. 加载配置
+    # 1. Load Configuration
     cfg = Config.fromfile(config_file)
     if 'pretrained' in cfg.model:
         cfg.model.pop('pretrained', None)
 
-    # 2. 构建模型
+    # 2. Build the Model
     model = build_segmentor(cfg.model, train_cfg=None, test_cfg=cfg.get('test_cfg'))
     model.eval()
     model.to(device)
 
-    # 3. 添加 forward_dummy
+    # 3. Add forward_dummy for compatibility
     add_forward_dummy(model)
-    # 4. 替换 forward 用于 FLOPs
+    
+    # 4. Patch forward for FLOPs calculation tool
     patch_forward_for_flops(model)
 
-    # 5. 参数量
+    # 5. Calculate Parameters
     num_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
     print(f'Parameters: {num_params / 1e6:.2f} M')
 
-    # 6. FLOPs & MACs
+    # 6. Calculate FLOPs & MACs
     flops, _ = get_model_complexity_info(
         model,
         input_shape,
@@ -62,27 +65,28 @@ def test_model_stats(config_file, input_shape=(3, 512, 512), device='cuda'):
         print_per_layer_stat=False
     )
     flops_g = flops / 1e9
-    macs_g = flops_g / 2
+    # Note: Traditionally, 1 GFLOPs ≈ 2 GMACs in many frameworks
+    macs_g = flops_g / 2 
     print(f'FLOPs: {flops_g:.2f} G')
     print(f'MACs: {macs_g:.2f} G')
 
-    # 7. 推理时间 (ms / image)
+    # 7. Measure Inference Time (ms / image)
     dummy = torch.randn(1, *input_shape).to(device)
-    dummy_metas = [{'img_shape': input_shape, 'ori_shape': input_shape, 
-                    'pad_shape': input_shape, 'scale_factor': 1.0}]
-
-    # Warm-up
+    
+    # Warm-up phase
     for _ in range(10):
         with torch.no_grad():
-            _ = model.forward_dummy(dummy)  # 推理时间测量也可直接用 forward_dummy
+            _ = model.forward_dummy(dummy)
 
     n_runs = 100
     if device == 'cuda':
         torch.cuda.synchronize()
+    
     start = time.time()
     for _ in range(n_runs):
         with torch.no_grad():
             _ = model.forward_dummy(dummy)
+            
     if device == 'cuda':
         torch.cuda.synchronize()
     end = time.time()
@@ -98,6 +102,6 @@ def test_model_stats(config_file, input_shape=(3, 512, 512), device='cuda'):
     }
 
 if __name__ == '__main__':
-    # 替换为你的 MMSeg 配置文件路径
+    # Replace with your actual MMSeg configuration path
     config_file = '/home/zyfone/hard-disk/zyf/code-seg/ALL-DAFormer-SAM-Graph-Euler/configs/daformer/city2dense_uda_openset_graph.py'
     stats = test_model_stats(config_file)
