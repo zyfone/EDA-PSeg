@@ -41,7 +41,7 @@ uda = dict(
     # pseudo_weight_ignore_bottom=120,
     pseudo_weight_ignore_top=0,
     pseudo_weight_ignore_bottom=0,
-    pseudo_threshold_unk=0.5
+    pseudo_threshold_unk=0.6
     )
 data = dict(
     train=dict(
