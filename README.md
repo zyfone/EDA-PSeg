@@ -1,9 +1,11 @@
 
 <div align="center">
 
-<img src="resource/framework.png" width="90%">
+
 
 <h1><b>Seeing Beyond: Extrapolative Domain Adaptive Panoramic Segmentation</b></h1>
+
+<img src="resource/framework.png" width="60%">
 
 <p>
 <a href="https://github.com/zyfone/EDA-PSeg"><img src="https://img.shields.io/github/stars/zyfone/EDA-PSeg?color=yellow" alt="Stars"></a>
@@ -13,8 +15,9 @@
 </p>
 
 <p>
-  <a href="https://arxiv.org/abs/"><strong>📄 Paper: Seeing Beyond – Extrapolative Domain Adaptive Panoramic Segmentation</strong></a>
+  <a href="https://arxiv.org/abs/2603.15475"><strong>📄 Paper: Seeing Beyond – Extrapolative Domain Adaptive Panoramic Segmentation</strong></a>
 </p>
+
 
 <p>
   <a href="https://github.com/zyfone/">Yuanfan Zheng<sup>1</sup></a>, 
@@ -28,6 +31,8 @@
 <sup>2</sup>IAR, Karlsruher Institut für Technologie &nbsp;·&nbsp;
 <sup>3</sup>Hong Kong University of Science and Technology (HKUST)
 </p>
+
+
 
 </div>
 
