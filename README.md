@@ -88,8 +88,9 @@ pip install -r requirements.txt
 ```
 build mmcv form source file
 ```shell
-cd mmcv
-
+#download mmcv-1.3.7.zip from https://github.com/zyfone/EDA-PSeg/releases/download/0.0/mmcv-1.3.7.zip
+unzip mmcv-1.3.7.zip
+cd mmcv-1.3.7
 pip install -e . -v
 ```
 
@@ -99,13 +100,25 @@ For convenience, we provide an   of the final xxxxx.
 A training job can be launched using:
 
 ```shell
-python run_experiments.py --config xxx
+
+# Cityscapes → Dense
+CUDA_VISIBLE_DEVICES=0 python run_experiments.py --config configs/daformer/city2dense_uda_openset_graph.py
+
+# Synth → Dense
+CUDA_VISIBLE_DEVICES=0 python run_experiments.py --config configs/daformer/syn2dense_uda_openset_graph.py 
+
+# GTA → Synth
+CUDA_VISIBLE_DEVICES=0 python run_experiments.py --config configs/daformer/gta2syn_uda_openset_graph.py 
+
+# Synth → ACDC
+CUDA_VISIBLE_DEVICES=0 python run_experiments.py --config configs/daformer/syn2acdc_uda_openset_graph.py
+
 ```
 
 ## Testing & Predictions
 
 ```shell
-sh test.sh path/to/checkpoint_directory
+python -m tools.test ${CONFIG_FILE} ${CHECKPOINT_FILE} --eval h_score --show-dir ${SHOW_DIR} --opacity 1
 ```
 
 
