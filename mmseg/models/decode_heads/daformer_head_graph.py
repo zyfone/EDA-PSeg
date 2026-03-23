@@ -295,8 +295,7 @@ class DAFormerHead_Graph(BaseDecodeHead):
         
         self.cross_domain_graph = MultiHeadAttention_Graph(256, 1, dropout=0.1, version='v2') # Cross Graph Interaction
         self.intra_domain_graph = MultiHeadAttention_Graph(256, 1, dropout=0.1, version='v2') # Intra-domain graph aggregation
-        # self.register_buffer('sr_seed', torch.zeros(self.num_classes, 256))
-        # self.register_buffer('tg_seed', torch.zeros(self.num_classes, 256))
+
         sr_seed = F.normalize(torch.randn(self.num_classes - 1, 256), dim=-1)
         tg_seed = F.normalize(torch.randn(self.num_classes - 1, 256), dim=-1)
         sr_seed = torch.cat([sr_seed, torch.zeros(1, 256)], dim=0)
