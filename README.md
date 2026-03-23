@@ -37,26 +37,47 @@ download link:
 train IDs and to generate the class index for RCS:
 
 ```shell
-#Open-set PIN2PAN (Cityscapes，WildPASS2K → DensePASS).
-python tools/convert_datasets_pass/cityscapes_13_train.py  XXXXXX  --nproc  8 #for source domain 
-python tools/convert_datasets_pass/DensePASS_13.py  XXXXXX  --nproc  8 #for test
+# =================================================================================
+# 1. Open-set PIN2PAN (Cityscapes, WildPASS2K -> DensePASS)
+# =================================================================================
+# Source Domain (Cityscapes)
+python tools/convert_datasets_pass/cityscapes_13_train.py /path/to/Cityscapes --nproc 8
 
-#WildPASS2K for target domain (empoty label) 
-python tools/convert_datasets_pass/target_empoty.py XXXXXXX  --nproc  8 
+# Target Domain (WildPASS2K - Empty Label)
+python tools/convert_datasets_pass/target_empoty.py /path/to/WildPASS2K --nproc 8
 
-#Open-set SynPASS，WildPASS2K → DensePASS
-python tools/convert_datasets_pass/SynPASS_13.py XXXXXX  --nproc  8 --split train --mapping train #for source domain
-python tools/convert_datasets_pass/DensePASS_11.py  /home/zyfone/hard-disk/zyf/datasets/DensePASS/DensePASS  --nproc  8 #for test
+# Test Domain (DensePASS)
+python tools/convert_datasets_pass/DensePASS_13.py /path/to/DensePASS --nproc 8
 
-#Open-set GTA，SynPASS → SynPASS
-python tools/convert_datasets_pass/gta_13.py XXXXXX  --nproc  8 #for source domain
-python tools/convert_datasets_pass/SynPASS_13.py XXXXXX  --nproc  8 --split val --mapping test #for test
-python tools/convert_datasets_pass/SynPASS_13.py XXXXXX  --nproc  8 --split test --mapping test #for test
 
-#Open-set SynPASS，ACDC → ACDC
-python tools/convert_datasets_pass/ACDC_13.py XXXXXX  --nproc  8 --split train
-python tools/convert_datasets_pass/ACDC_13.py XXXXXX  --nproc  8 --split val
-python tools/convert_datasets_pass/ACDC_13.py XXXXXX  --nproc  8 --split test
+# =================================================================================
+# 2. Open-set SynPASS, WildPASS2K -> DensePASS
+# =================================================================================
+# Source Domain (SynPASS)
+python tools/convert_datasets_pass/SynPASS_13.py /path/to/SynPASS --nproc 8 --split train --mapping train
+
+# Test Domain (DensePASS)
+python tools/convert_datasets_pass/DensePASS_11.py /path/to/DensePASS --nproc 8
+
+
+# =================================================================================
+# 3. Open-set GTA, SynPASS -> SynPASS
+# =================================================================================
+# Source Domain (GTA5)
+python tools/convert_datasets_pass/gta_13.py /path/to/GTA5 --nproc 8
+
+# Test Domain (SynPASS Val & Test)
+python tools/convert_datasets_pass/SynPASS_13.py /path/to/SynPASS --nproc 8 --split val --mapping test
+python tools/convert_datasets_pass/SynPASS_13.py /path/to/SynPASS --nproc 8 --split test --mapping test
+
+
+# =================================================================================
+# 4. Open-set SynPASS, ACDC -> ACDC
+# =================================================================================
+# ACDC Dataset (Train, Val & Test)
+python tools/convert_datasets_pass/ACDC_13.py /path/to/ACDC --nproc 8 --split train
+python tools/convert_datasets_pass/ACDC_13.py /path/to/ACDC --nproc 8 --split val
+python tools/convert_datasets_pass/ACDC_13.py /path/to/ACDC --nproc 8 --split test
 ```
 
 
