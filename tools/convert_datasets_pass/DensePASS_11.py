@@ -87,7 +87,7 @@ def parse_args():
 def main():
     args = parse_args()
 
-    # 查找所有 *_labelTrainIds.png 文件
+    # find all *_labelTrainIds.png files
     label_paths = [
         osp.join(args.input_dir, f)
         for f in mmcv.scandir(args.input_dir, suffix='labelTrainIds.png', recursive=True)
