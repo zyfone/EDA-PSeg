@@ -295,7 +295,8 @@ class DAFormerHead_Graph(BaseDecodeHead):
         
         self.cross_domain_graph = MultiHeadAttention_Graph(256, 1, dropout=0.1, version='v2') # Cross Graph Interaction
         self.intra_domain_graph = MultiHeadAttention_Graph(256, 1, dropout=0.1, version='v2') # Intra-domain graph aggregation
-
+        # self.register_buffer('sr_seed', torch.zeros(self.num_classes, 256))
+        # self.register_buffer('tg_seed', torch.zeros(self.num_classes, 256))
         sr_seed = F.normalize(torch.randn(self.num_classes - 1, 256), dim=-1)
         tg_seed = F.normalize(torch.randn(self.num_classes - 1, 256), dim=-1)
         sr_seed = torch.cat([sr_seed, torch.zeros(1, 256)], dim=0)
@@ -309,7 +310,7 @@ class DAFormerHead_Graph(BaseDecodeHead):
 
 
         # euler-based attention block
-        self.euler_att = Euler_Attention(
+        self.euler_margin_att = Euler_Attention(
             n_heads=2,
             hidden_size=self.channels,
             hidden_dropout_prob=0.1,
@@ -346,7 +347,7 @@ class DAFormerHead_Graph(BaseDecodeHead):
         downsampled_features = nn.AdaptiveAvgPool2d((H // 2, W // 2))(x)
         B_ds, C_ds, H_ds, W_ds = downsampled_features.shape
         fused_3d = downsampled_features.flatten(2).transpose(1, 2)  # B, L_ds, C
-        fused_3d = self.euler_att(fused_3d)
+        fused_3d = self.euler_margin_att(fused_3d)
         refined_downsampled = fused_3d.transpose(1, 2).reshape(B_ds, C_ds, H_ds, W_ds) # B, C, H_ds, W_ds
         refined_fused = resize(
             refined_downsampled, 
@@ -490,8 +491,6 @@ class DAFormerHead_Graph(BaseDecodeHead):
                     continue
                 bs_mean = bs.mean(0)
                 seed[cls] = 0.9 * seed[cls] + 0.1 * bs_mean
-                seed[cls] = F.normalize(seed[cls], dim=-1)
-
         process_nodes_and_labels(sr_nodes, sr_labels, self.sr_seed)
         process_nodes_and_labels(tg_nodes, tg_labels, self.tg_seed)
         
@@ -605,7 +604,7 @@ class DAFormerHead_Graph(BaseDecodeHead):
                 if is_positive:
                     mask = (cls_probs > prob_thr) & (cls_entropy < entropy_thr)
                 else:
-                    mask = (cls_probs < prob_thr) & (cls_entropy < entropy_thr)
+                    mask = (cls_probs <= prob_thr) & (cls_entropy < entropy_thr)
 
                 if not torch.any(mask):
                     return None, None
@@ -671,6 +670,7 @@ class DAFormerHead_Graph(BaseDecodeHead):
 
             if has_sr and has_tg:
                 continue
+            
             elif has_tg and not has_sr:
                 num = len(tg_c)//4
                 sr_c_fake = (
