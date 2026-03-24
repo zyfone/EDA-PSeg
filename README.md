@@ -107,6 +107,7 @@ python tools/convert_datasets_pass/ACDC_13.py /path/to/ACDC --nproc 8 --split te
 ## 🧩 Environment Setup
 
 ```bash
+pip install torch==2.0.0 torchvision==0.15.1 torchaudio==2.0.1 --index-url https://download.pytorch.org/whl/cu118
 pip install -r requirements.txt 
 ```
 
