@@ -296,8 +296,8 @@ class DAFormerHead_Graph(BaseDecodeHead):
         self.cross_domain_graph = MultiHeadAttention_Graph(256, 1, dropout=0.1, version='v2') # Cross Graph Interaction
         self.intra_domain_graph = MultiHeadAttention_Graph(256, 1, dropout=0.1, version='v2') # Intra-domain graph aggregation
 
-        self.register_buffer('sr_seed', torch.randn(self.num_classes, 256))
-        self.register_buffer('tg_seed', torch.randn(self.num_classes, 256))
+        self.register_buffer('sr_seed', torch.zeros(self.num_classes, 256))
+        self.register_buffer('tg_seed', torch.zeros(self.num_classes, 256))
 
         self.InstNorm_layer = nn.InstanceNorm2d(1)
         self.matching_loss = nn.MSELoss(reduction='mean')
@@ -488,7 +488,18 @@ class DAFormerHead_Graph(BaseDecodeHead):
                 seed[cls] = 0.9 * seed[cls] + 0.1 * bs_mean
         process_nodes_and_labels(sr_nodes, sr_labels, self.sr_seed)
         process_nodes_and_labels(tg_nodes, tg_labels, self.tg_seed)
-        
+
+    def update_seed_init(self, sr_nodes, sr_labels, tg_nodes=None, tg_labels=None):
+        def process_nodes_and_labels(nodes, labels, seed):
+            labels = labels.squeeze().reshape(-1).long()
+            for cls in labels.unique().long():
+                bs = nodes[labels == cls].detach()
+                if bs.numel() == 0:
+                    continue
+                bs_mean = bs.mean(0)
+                seed[cls] = 0.5 * seed[cls] + 0.5 * bs_mean
+        process_nodes_and_labels(sr_nodes, sr_labels, self.sr_seed)
+        process_nodes_and_labels(tg_nodes, tg_labels, self.tg_seed)
    
     def node_sample(self, x_feat, seg_logits, gt_x_feat, max_nodes_per_class=8):
         """
@@ -735,7 +746,9 @@ class DAFormerHead_Graph(BaseDecodeHead):
             # Initialize losses
             losses = {}
             losses['loss_matchgraph'] = torch.tensor(0.0, requires_grad=True).to(x_feat.device)
-            if len(torch.unique(pos_src_gt)) > 2 and len(torch.unique(pos_tgt_gt)) > 2:
+            sr_seed_all = torch.all(self.sr_seed.norm(dim=-1) > 0)
+            tg_seed_all = torch.all(self.tg_seed.norm(dim=-1) > 0)
+            if sr_seed_all and tg_seed_all:
                 # Node completion
                 (pos_src_feat, pos_tgt_feat), (pos_src_gt, pos_tgt_gt)= \
                     self._node_completion((pos_src_feat, pos_tgt_feat),
@@ -750,7 +763,7 @@ class DAFormerHead_Graph(BaseDecodeHead):
                 loss_quadratic = self._forward_qu(pos_edges_s.detach(), pos_edges_t.detach(), affinity)
                 losses['loss_matchgraph'] = (match_loss_pos+loss_quadratic) * 0.1
             else:
-                self.update_seed(pos_src_feat, pos_src_gt,pos_src_feat, pos_src_gt)
+                self.update_seed_init(pos_src_feat, pos_src_gt,pos_src_feat, pos_src_gt)
         
         return losses
     
