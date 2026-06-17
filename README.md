@@ -63,7 +63,7 @@ Convert label IDs and generate class indices for RCS:
 python tools/convert_datasets_pass/cityscapes_13_train.py /path/to/Cityscapes --nproc 8
 
 # Target Domain (WildPASS2K - Empty Label)
-python tools/convert_datasets_pass/target_empoty.py /path/to/WildPASS2K --nproc 8
+python tools/convert_datasets_pass/target_empoty.py /path/to/WildPASS2K 
 
 # Test Domain (DensePASS)
 python tools/convert_datasets_pass/DensePASS_13.py /path/to/DensePASS --nproc 8
