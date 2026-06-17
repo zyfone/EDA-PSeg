@@ -425,7 +425,7 @@ class DAFormerHead_Graph(BaseDecodeHead):
 
         M = self.node_affinity(nodes_1, nodes_2)
         M = self.InstNorm_layer(M[None, None, :, :])
-        M = self.sinkhorn_rpm(M[:, 0, :, :]/0.05, n_iters=20, eps=1e-3).squeeze().exp()
+        M = self.sinkhorn_rpm(M[:, 0, :, :], n_iters=20).squeeze().exp()
         one_hot1 = self.one_hot(labels_side1)
         one_hot2 = self.one_hot(labels_side2)
         matching_target = torch.mm(one_hot1, one_hot2.t())
@@ -477,7 +477,6 @@ class DAFormerHead_Graph(BaseDecodeHead):
 
    
     def update_seed(self, sr_nodes, sr_labels, tg_nodes=None, tg_labels=None):
-
         def process_nodes_and_labels(nodes, labels, seed):
             labels = labels.squeeze().reshape(-1).long()
             for cls in labels.unique().long():
@@ -486,18 +485,6 @@ class DAFormerHead_Graph(BaseDecodeHead):
                     continue
                 bs_mean = bs.mean(0)
                 seed[cls] = 0.9 * seed[cls] + 0.1 * bs_mean
-        process_nodes_and_labels(sr_nodes, sr_labels, self.sr_seed)
-        process_nodes_and_labels(tg_nodes, tg_labels, self.tg_seed)
-
-    def update_seed_init(self, sr_nodes, sr_labels, tg_nodes=None, tg_labels=None):
-        def process_nodes_and_labels(nodes, labels, seed):
-            labels = labels.squeeze().reshape(-1).long()
-            for cls in labels.unique().long():
-                bs = nodes[labels == cls].detach()
-                if bs.numel() == 0:
-                    continue
-                bs_mean = bs.mean(0)
-                seed[cls] = 0.5 * seed[cls] + 0.5 * bs_mean
         process_nodes_and_labels(sr_nodes, sr_labels, self.sr_seed)
         process_nodes_and_labels(tg_nodes, tg_labels, self.tg_seed)
    
@@ -578,8 +565,8 @@ class DAFormerHead_Graph(BaseDecodeHead):
                 nodes = []
                 mean_nodes = mean_feat + torch.normal(
                     mean=0.0,
-                    std=unk_feats_std/2,
-                    size=(1, cls_feats.size(1)),
+                    std=unk_feats_std,
+                    size=(max_nodes_per_class, cls_feats.size(1)),
                     device=cls_feats.device,
                 )
                 nodes.append(mean_nodes)
@@ -624,7 +611,7 @@ class DAFormerHead_Graph(BaseDecodeHead):
                 cls_probs = cls_probs[mask]
                 num_select = min(max_nodes_per_class, cls_feats.size(0))
 
-                nodes = [mean_feat+ torch.normal(0, mean_feat_std/2, size=(mean_num, cls_feats.size(1)), device=cls_feats.device)]
+                nodes = [mean_feat+ torch.normal(0, mean_feat_std, size=(mean_num, cls_feats.size(1)), device=cls_feats.device)]
                 if num_select > 1:
                     dists = torch.cdist(cls_feats, mean_feat, p=2).squeeze(1)
                     sorted_indices = torch.topk(dists, k=num_select, largest=False).indices
@@ -678,18 +665,22 @@ class DAFormerHead_Graph(BaseDecodeHead):
                 continue
             
             elif has_tg and not has_sr:
-                num = len(tg_c)//4
+                if self.sr_seed[c].norm() <= 0:
+                    continue
+                num = len(tg_c)
                 sr_c_fake = (
-                    torch.normal(0,tg_c.std().item()/2, size=(num, sr_nodes.size(1)), device=tg_c.device)+ self.sr_seed[c]
+                    torch.normal(0,tg_c.std().item(), size=(num, sr_nodes.size(1)), device=tg_c.device)+ self.sr_seed[c]
                 )
 
                 sr_nodes_all.append(sr_c_fake)
                 sr_labels_all.append(torch.full((num,), c, dtype=torch.long, device=tg_c.device))
 
             elif has_sr and not has_tg:
-                num = len(sr_c)//4
+                if self.tg_seed[c].norm() <= 0:
+                    continue
+                num = len(sr_c)
                 tg_c_fake = (
-                    torch.normal(0, sr_c.std().item()/2, size=(num, tg_nodes.size(1)), device=sr_c.device)+ self.tg_seed[c]
+                    torch.normal(0, sr_c.std().item(), size=(num, tg_nodes.size(1)), device=sr_c.device)+ self.tg_seed[c]
                 )
                 tg_nodes_all.append(tg_c_fake)
                 tg_labels_all.append(torch.full((num,), c, dtype=torch.long, device=sr_c.device))
@@ -746,24 +737,24 @@ class DAFormerHead_Graph(BaseDecodeHead):
             # Initialize losses
             losses = {}
             losses['loss_matchgraph'] = torch.tensor(0.0, requires_grad=True).to(x_feat.device)
-            sr_seed_all = torch.all(self.sr_seed.norm(dim=-1) > 0)
-            tg_seed_all = torch.all(self.tg_seed.norm(dim=-1) > 0)
-            if sr_seed_all and tg_seed_all:
-                # Node completion
-                (pos_src_feat, pos_tgt_feat), (pos_src_gt, pos_tgt_gt)= \
-                    self._node_completion((pos_src_feat, pos_tgt_feat),
-                                        (pos_src_gt, pos_tgt_gt))
-                # # Intra-domain graph
-                pos_src_feat, pos_edges_s = self.intra_domain_graph(pos_src_feat, pos_src_feat, pos_src_feat)
-                pos_tgt_feat, pos_edges_t = self.intra_domain_graph(pos_tgt_feat, pos_tgt_feat, pos_tgt_feat)
-                self.update_seed(pos_src_feat, pos_src_gt, pos_tgt_feat, pos_tgt_gt)
-                pos_tgt_feat = self.cross_domain_graph(pos_src_feat.detach(), pos_src_feat.detach(), pos_tgt_feat)[0]
-                pos_src_feat= self.cross_domain_graph(pos_tgt_feat.detach(), pos_tgt_feat.detach(), pos_src_feat)[0]
-                match_loss_pos, affinity = self._forward_aff(pos_src_feat, pos_tgt_feat, pos_src_gt, pos_tgt_gt)
-                loss_quadratic = self._forward_qu(pos_edges_s.detach(), pos_edges_t.detach(), affinity)
-                losses['loss_matchgraph'] = (match_loss_pos+loss_quadratic) * 0.1
-            else:
-                self.update_seed_init(pos_src_feat, pos_src_gt,pos_src_feat, pos_src_gt)
+
+            real_src_num = pos_src_feat.size(0)
+            real_tgt_num = pos_tgt_feat.size(0)
+            # Node completion
+            (pos_src_feat, pos_tgt_feat), (pos_src_gt, pos_tgt_gt)= \
+                self._node_completion((pos_src_feat, pos_tgt_feat),
+                                    (pos_src_gt, pos_tgt_gt))
+            # # Intra-domain graph
+            pos_src_feat, pos_edges_s = self.intra_domain_graph(pos_src_feat, pos_src_feat, pos_src_feat)
+            pos_tgt_feat, pos_edges_t = self.intra_domain_graph(pos_tgt_feat, pos_tgt_feat, pos_tgt_feat)
+            self.update_seed(pos_src_feat[:real_src_num], pos_src_gt[:real_src_num],
+                                pos_tgt_feat[:real_tgt_num], pos_tgt_gt[:real_tgt_num])
+            pos_tgt_feat = self.cross_domain_graph(pos_src_feat.detach(), pos_src_feat.detach(), pos_tgt_feat)[0]
+            pos_src_feat = self.cross_domain_graph(pos_tgt_feat.detach(), pos_tgt_feat.detach(), pos_src_feat)[0]
+            match_loss_pos, affinity = self._forward_aff(pos_src_feat, pos_tgt_feat, pos_src_gt, pos_tgt_gt)
+            loss_quadratic = self._forward_qu(pos_edges_s.detach(), pos_edges_t.detach(), affinity)
+            losses['loss_matchgraph'] = (match_loss_pos+loss_quadratic) * 0.1
+
         
         return losses
     
