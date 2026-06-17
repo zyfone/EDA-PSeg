@@ -484,7 +484,11 @@ class DAFormerHead_Graph(BaseDecodeHead):
                 if bs.numel() == 0:
                     continue
                 bs_mean = bs.mean(0)
-                seed[cls] = 0.9 * seed[cls] + 0.1 * bs_mean
+                # seed[cls] = 0.9 * seed[cls] + 0.1 * bs_mean
+                if torch.all(seed[cls] == 0):
+                    seed[cls] = bs_mean
+                else:    
+                    seed[cls] = 0.9 * seed[cls] + 0.1 * bs_mean
         process_nodes_and_labels(sr_nodes, sr_labels, self.sr_seed)
         process_nodes_and_labels(tg_nodes, tg_labels, self.tg_seed)
    
