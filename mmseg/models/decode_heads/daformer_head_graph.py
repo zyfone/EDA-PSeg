@@ -569,7 +569,7 @@ class DAFormerHead_Graph(BaseDecodeHead):
                 nodes = []
                 mean_nodes = mean_feat + torch.normal(
                     mean=0.0,
-                    std=unk_feats_std,
+                    std=unk_feats_std*0.1,
                     size=(max_nodes_per_class, cls_feats.size(1)),
                     device=cls_feats.device,
                 )
@@ -615,7 +615,7 @@ class DAFormerHead_Graph(BaseDecodeHead):
                 cls_probs = cls_probs[mask]
                 num_select = min(max_nodes_per_class, cls_feats.size(0))
 
-                nodes = [mean_feat+ torch.normal(0, mean_feat_std, size=(mean_num, cls_feats.size(1)), device=cls_feats.device)]
+                nodes = [mean_feat+ torch.normal(0, mean_feat_std*0.1, size=(mean_num, cls_feats.size(1)), device=cls_feats.device)]
                 if num_select > 1:
                     dists = torch.cdist(cls_feats, mean_feat, p=2).squeeze(1)
                     sorted_indices = torch.topk(dists, k=num_select, largest=False).indices
@@ -673,7 +673,7 @@ class DAFormerHead_Graph(BaseDecodeHead):
                     continue
                 num = len(tg_c)
                 sr_c_fake = (
-                    torch.normal(0,tg_c.std().item(), size=(num, sr_nodes.size(1)), device=tg_c.device)+ self.sr_seed[c]
+                    torch.normal(0,tg_c.std().item()*0.1, size=(num, sr_nodes.size(1)), device=tg_c.device)+ self.sr_seed[c]
                 )
 
                 sr_nodes_all.append(sr_c_fake)
@@ -684,7 +684,7 @@ class DAFormerHead_Graph(BaseDecodeHead):
                     continue
                 num = len(sr_c)
                 tg_c_fake = (
-                    torch.normal(0, sr_c.std().item(), size=(num, tg_nodes.size(1)), device=sr_c.device)+ self.tg_seed[c]
+                    torch.normal(0, sr_c.std().item()*0.1, size=(num, tg_nodes.size(1)), device=sr_c.device)+ self.tg_seed[c]
                 )
                 tg_nodes_all.append(tg_c_fake)
                 tg_labels_all.append(torch.full((num,), c, dtype=torch.long, device=sr_c.device))
