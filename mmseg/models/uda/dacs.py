@@ -224,6 +224,7 @@ class DACS(UDADecorator):
 
         # SAM pseudo label refinement
         # if self.SAM_Refinement:
+       # SAM-based pseudo-label generation   this is bug to be fix
         if (self.max_iters/4)*(1-self.SAM_ratio) <=self.local_iter%(self.max_iters/4) <= (self.max_iters/4):
         # if self.local_iter >= self.sam_start_iter and sam_masks_batch is not None:
             new_pseudo_label = pseudo_label.clone() #torch.zeros_like(pseudo_label)
@@ -338,7 +339,7 @@ class DACS(UDADecorator):
         #     pseudo_prob.shape, device=dev)
 
         # -------------------------------
-        # SAM-based pseudo-label generation
+        # SAM-based pseudo-label generation   this is bug to be fix
         # ---------------------------
         self.SAM_ratio=0.3
         if (self.max_iters/4)*(1-self.SAM_ratio) <=self.local_iter%(self.max_iters/4) <= (self.max_iters/4):
