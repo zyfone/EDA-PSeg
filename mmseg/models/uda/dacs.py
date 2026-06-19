@@ -104,8 +104,6 @@ class DACS(UDADecorator):
         self.mask_generator = SamAutomaticMaskGenerator(mobile_sam)
 
         self.pseudo_thres_unk=cfg['pseudo_threshold_unk']
-        # self.SAM_ratio = 0.3
-        # self.sam_start_iter = int(self.max_iters * (1 - self.SAM_ratio))
 
     def get_ema_model(self):
         return get_module(self.ema_model)
@@ -223,10 +221,8 @@ class DACS(UDADecorator):
         pseudo_label = torch.where(pseudo_prob>self.pseudo_thres, pseudo_label, int(self.num_classes-1)) # modified
 
         # SAM pseudo label refinement
-        # if self.SAM_Refinement:
-       # SAM-based pseudo-label generation   this is bug to be fix
+        # SAM-based pseudo-label generation   this is bug to be fix
         if (self.max_iters/4)*(1-self.SAM_ratio) <=self.local_iter%(self.max_iters/4) <= (self.max_iters/4):
-        # if self.local_iter >= self.sam_start_iter and sam_masks_batch is not None:
             new_pseudo_label = pseudo_label.clone() #torch.zeros_like(pseudo_label)
             for bb in range(len(sam_masks_batch)):
                 for mask in sam_masks_batch[bb]:
@@ -409,10 +405,10 @@ class DACS(UDADecorator):
         )
         target_losses.pop('features')
 
-        # warmup_steps = 4000
-        # step_factor = min(1.0, max(0.0, (self.local_iter - 1000) / float(warmup_steps - 1000)))
-        # for key in target_losses:
-        #     target_losses[key] *= step_factor
+        warmup_steps = 4000
+        step_factor = min(1.0, max(0.0, (self.local_iter - 1000) / float(warmup_steps - 1000)))
+        for key in target_losses:
+            target_losses[key] *= step_factor
 
         target_losses = add_prefix(target_losses, 'target')
         t_loss, t_log_vars = self._parse_losses(target_losses)
