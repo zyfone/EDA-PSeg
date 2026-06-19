@@ -405,8 +405,8 @@ class DACS(UDADecorator):
         )
         target_losses.pop('features')
 
-        warmup_steps = 4000
-        step_factor = min(1.0, max(0.0, (self.local_iter - 1000) / float(warmup_steps - 1000)))
+        warmup_steps = 1000
+        step_factor = min(1.0, max(0.0, (self.local_iter ) / float(warmup_steps )))
         for key in target_losses:
             target_losses[key] *= step_factor
 
