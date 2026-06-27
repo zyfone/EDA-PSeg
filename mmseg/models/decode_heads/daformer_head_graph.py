@@ -690,8 +690,8 @@ class DAFormerHead_Graph(BaseDecodeHead):
                 tg_nodes_all.append(tg_c_fake)
                 tg_labels_all.append(torch.full((num,), c, dtype=torch.long, device=sr_c.device))
         
-        if len(sr_nodes_all) == 1:
-            return nodes, labels
+        # if len(sr_nodes_all) == 1:
+        #     return nodes, labels
         
         return (
             torch.cat(sr_nodes_all, dim=0),
