@@ -221,9 +221,8 @@ class DACS(UDADecorator):
         pseudo_label = torch.where(pseudo_prob>self.pseudo_thres, pseudo_label, int(self.num_classes-1)) # modified
 
         # SAM pseudo label refinement
-        # SAM-based pseudo-label generation   this is bug to be fix
-        # if (self.max_iters/4)*(1-self.SAM_ratio) <=self.local_iter%(self.max_iters/4) <= (self.max_iters/4):
-        if (self.max_iters/8)*(1-self.SAM_ratio) <=self.local_iter%(self.max_iters/8) <= (self.max_iters/8):
+        # SAM-based pseudo-label generation
+        if (self.max_iters/4)*(1-self.SAM_ratio) <=self.local_iter%(self.max_iters/4) <= (self.max_iters/4):
             new_pseudo_label = pseudo_label.clone() #torch.zeros_like(pseudo_label)
             for bb in range(len(sam_masks_batch)):
                 for mask in sam_masks_batch[bb]:
@@ -339,9 +338,7 @@ class DACS(UDADecorator):
         # SAM-based pseudo-label generation   this is bug to be fix
         # ---------------------------
         self.SAM_ratio=0.3
-        # if (self.max_iters/4)*(1-self.SAM_ratio) <=self.local_iter%(self.max_iters/4) <= (self.max_iters/4):
-        if (self.max_iters/8)*(1-self.SAM_ratio) <=self.local_iter%(self.max_iters/8) <= (self.max_iters/8):
-        # if self.local_iter >= self.sam_start_iter:
+        if (self.max_iters/4)*(1-self.SAM_ratio) <=self.local_iter%(self.max_iters/4) <= (self.max_iters/4):
             sam_trg_img = torch.clamp(denorm(target_img, means, stds), 0, 1) * 255
             sam_masks_batch = []
             for bb in range(target_img.shape[0]):
