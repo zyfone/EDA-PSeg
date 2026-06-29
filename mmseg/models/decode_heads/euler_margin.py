@@ -67,21 +67,16 @@ class EulerFormer(nn.Module):
 
         r, p = v_sorted[..., ::2], v_sorted[..., 1::2]
 
-        # lam = torch.sqrt(r ** 2 + p ** 2 + 1e-9)
-        epsilon = 1e-6
-        lam = torch.sqrt(r ** 2 + p ** 2 + epsilon)
-        # theta = torch.atan2(p, r)
-        r_norm = r / lam.detach()
-        p_norm = p / lam.detach()
-        theta = torch.atan2(p_norm, r_norm)
+
+        lam = torch.sqrt(r ** 2 + p ** 2)
+        theta = torch.atan2(p, r)
 
         if "ro" in type:
             theta = theta * self.delta
             if "query" in type:
                 theta = theta + self.b
 
-        # lam = lam * torch.exp(self.log_scale)
-        lam = lam * torch.exp(self.log_scale.clamp(-5, 5))
+        lam = lam * torch.exp(self.log_scale)
         
         r, p = lam * torch.cos(theta), lam * torch.sin(theta)
         embeddings = torch.stack([r, p], dim=-1).reshape(B, L, D)
