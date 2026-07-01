@@ -56,7 +56,7 @@ class EulerFormer(nn.Module):
         self.delta = nn.Parameter(torch.ones(1,1,self.hidden_size//2))
         self.b = nn.Parameter(torch.zeros(1,1,self.hidden_size//2))
         self.log_scale = nn.Parameter(torch.zeros(1,1,self.hidden_size//2))
-        self.soft_sort=NeuralSort(tau=0.5)
+        self.soft_sort=NeuralSort()
     
     def forward(self, v, type="ro"):
         B, L, D = v.shape
