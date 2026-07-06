@@ -14,9 +14,9 @@ synpass_train_pipeline = [
     dict(type='LoadAnnotations'),
     dict(type='Resize', img_scale=(2048, 1024)),
     # dict(type='Resize', img_scale=(1024, 512)),
-    # dict(type='RandomCrop', crop_size=crop_size, cat_max_ratio=0.75),
+    dict(type='RandomCrop', crop_size=crop_size, cat_max_ratio=0.75),
     # dict(type='RandomCrop', crop_size=crop_size, cat_max_ratio=0.5),
-    dict(type='RandomCrop', crop_size=crop_size, cat_max_ratio=0.25),
+    # dict(type='RandomCrop', crop_size=crop_size, cat_max_ratio=0.25),
     dict(type='RandomFlip', prob=0.5),
     # dict(type='PhotoMetricDistortion'),  # is applied later in dacs.py
     dict(type='Normalize', **img_norm_cfg),
