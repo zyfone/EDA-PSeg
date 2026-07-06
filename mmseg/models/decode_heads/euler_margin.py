@@ -54,7 +54,7 @@ class EulerFormer(nn.Module):
         self.vector_wise = vector_wise
         self.tau = tau 
         self.delta = nn.Parameter(torch.ones(1,1,self.hidden_size//2))
-        self.b = nn.Parameter(torch.zeros(1,1,self.hidden_size//2))
+        self.b = nn.Parameter(torch.ones(1,1,self.hidden_size//2)*0.1)
         self.log_scale = nn.Parameter(torch.zeros(1,1,self.hidden_size//2))
         self.soft_sort=NeuralSort()
     
