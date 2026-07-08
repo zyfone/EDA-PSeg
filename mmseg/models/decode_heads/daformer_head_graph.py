@@ -41,14 +41,14 @@ class Affinity(nn.Module):
         )
         self.project_sr = nn.Linear(256, 256,bias=False)
         self.project_tg = nn.Linear(256, 256,bias=False)
-        self.reset_parameters()
-    def reset_parameters(self):
-        for i in self.fc_M:
-            if isinstance(i, nn.Linear):
-                nn.init.normal_(i.weight, std=0.01)
-                nn.init.constant_(i.bias, 0)
-        nn.init.normal_(self.project_sr.weight, std=0.01)
-        nn.init.normal_(self.project_tg.weight, std=0.01)
+    #     self.reset_parameters()
+    # def reset_parameters(self):
+    #     for i in self.fc_M:
+    #         if isinstance(i, nn.Linear):
+    #             nn.init.normal_(i.weight, std=0.01)
+    #             nn.init.constant_(i.bias, 0)
+    #     nn.init.normal_(self.project_sr.weight, std=0.01)
+    #     nn.init.normal_(self.project_tg.weight, std=0.01)
     def forward(self, X, Y):
 
         X = self.project_sr(X)
