@@ -309,7 +309,7 @@ class DAFormerHead_Graph(BaseDecodeHead):
             n_heads=2,
             hidden_size=self.channels,
             hidden_dropout_prob=0.1,
-            attn_dropout_prob=0.1,
+            attn_dropout_prob=0.0,
         )
 
     def forward(self, inputs):
