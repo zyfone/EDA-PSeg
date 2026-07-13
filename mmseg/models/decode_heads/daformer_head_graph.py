@@ -41,14 +41,14 @@ class Affinity(nn.Module):
         )
         self.project_sr = nn.Linear(256, 256,bias=False)
         self.project_tg = nn.Linear(256, 256,bias=False)
-    #     self.reset_parameters()
-    # def reset_parameters(self):
-    #     for i in self.fc_M:
-    #         if isinstance(i, nn.Linear):
-    #             nn.init.normal_(i.weight, std=0.01)
-    #             nn.init.constant_(i.bias, 0)
-    #     nn.init.normal_(self.project_sr.weight, std=0.01)
-    #     nn.init.normal_(self.project_tg.weight, std=0.01)
+        self.reset_parameters()
+    def reset_parameters(self):
+        for i in self.fc_M:
+            if isinstance(i, nn.Linear):
+                nn.init.normal_(i.weight, std=0.01)
+                nn.init.constant_(i.bias, 0)
+        nn.init.normal_(self.project_sr.weight, std=0.01)
+        nn.init.normal_(self.project_tg.weight, std=0.01)
     def forward(self, X, Y):
 
         X = self.project_sr(X)
@@ -484,11 +484,7 @@ class DAFormerHead_Graph(BaseDecodeHead):
                 if bs.numel() == 0:
                     continue
                 bs_mean = bs.mean(0)
-                # seed[cls] = 0.9 * seed[cls] + 0.1 * bs_mean
-                if torch.all(seed[cls] == 0):
-                    seed[cls] = bs_mean
-                else:    
-                    seed[cls] = 0.9 * seed[cls] + 0.1 * bs_mean
+                seed[cls] = 0.9 * seed[cls] + 0.1 * bs_mean
         process_nodes_and_labels(sr_nodes, sr_labels, self.sr_seed)
         process_nodes_and_labels(tg_nodes, tg_labels, self.tg_seed)
    
@@ -669,8 +665,6 @@ class DAFormerHead_Graph(BaseDecodeHead):
                 continue
             
             elif has_tg and not has_sr:
-                if self.sr_seed[c].norm() <= 0:
-                    continue
                 num = len(tg_c)
                 sr_c_fake = (
                     torch.normal(0,tg_c.std().item(), size=(num, sr_nodes.size(1)), device=tg_c.device)+ self.sr_seed[c]
@@ -680,8 +674,6 @@ class DAFormerHead_Graph(BaseDecodeHead):
                 sr_labels_all.append(torch.full((num,), c, dtype=torch.long, device=tg_c.device))
 
             elif has_sr and not has_tg:
-                if self.tg_seed[c].norm() <= 0:
-                    continue
                 num = len(sr_c)
                 tg_c_fake = (
                     torch.normal(0, sr_c.std().item(), size=(num, tg_nodes.size(1)), device=sr_c.device)+ self.tg_seed[c]
