@@ -425,7 +425,6 @@ class DAFormerHead_Graph(BaseDecodeHead):
 
         M = self.node_affinity(nodes_1, nodes_2)
         M = self.InstNorm_layer(M[None, None, :, :])
-        # M = self.sinkhorn_rpm(M[:, 0, :, :], n_iters=10, eps=5e-1).squeeze().exp()
         M = self.sinkhorn_rpm(M[:, 0, :, :], n_iters=20).squeeze().exp()
         one_hot1 = self.one_hot(labels_side1)
         one_hot2 = self.one_hot(labels_side2)
@@ -682,8 +681,8 @@ class DAFormerHead_Graph(BaseDecodeHead):
                 tg_nodes_all.append(tg_c_fake)
                 tg_labels_all.append(torch.full((num,), c, dtype=torch.long, device=sr_c.device))
         
-        # if len(sr_nodes_all) == 1:
-        #     return nodes, labels
+        if len(sr_nodes_all) == 1:
+            return nodes, labels
         
         return (
             torch.cat(sr_nodes_all, dim=0),
